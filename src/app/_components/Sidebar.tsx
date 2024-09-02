@@ -2,59 +2,78 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/app/_components/ui/Button";
+import { cn } from "./ui/utils";
 
 export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="fixed left-0 top-8 m-auto z-10 flex flex-col bg-white">
+      {isOpen ? (
+        <OpenedSidebar close={() => setIsOpen(false)} />
+      ) : (
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          className={cn(
+            "bg-white border-y rounded-r-full border-r border-slate-200 p-3 w-16 flex justify-end transition-colors hover:bg-slate-100",
+            { hidden: isOpen },
+          )}
+        >
+          <ArrowIcon className="h-6 w-6" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OpenedSidebar({ close }: { close: () => void }) {
   return (
     <div
-      className={`fixed inset-y-0 left-0 z-10 flex w-[33vw] flex-col border-r bg-background ${isOpen ? "" : "hidden"}`}
+      className={`fixed left-3 my-auto drop-shadow-md z-10 flex flex-col border border-slate-200 rounded-xl bg-white w-fit h-[80vh] overflow-auto`}
     >
-      <div className="flex h-16 items-center justify-between border-b px-6">
-        <Button onClick={() => setIsOpen(!isOpen)}>
-          <MenuIcon
-            className={`h-5 w-5 transition-transform ${isOpen ? "" : "rotate-180"}`}
-          />
-          <span className="sr-only">Toggle menu</span>
-        </Button>
-      </div>
-      <nav className="flex-1 overflow-auto py-4">
+      <nav className="flex-1 overflow-auto py-4 flex flex-col gap-4">
+        <div
+          className="flex items-center justify-center  gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500 rotate-180"
+          onClick={close}
+        >
+          <ArrowIcon className="h-6 w-6" />
+        </div>
         <div className="grid gap-6 px-6">
           <div>
-            <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+            <h3 className=" text-sm font-medium text-gray-500 text-center">
               Main
             </h3>
             <div className="grid gap-1">
               <Link
-                href="#"
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                href="/"
+                className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
                 prefetch={false}
               >
                 <HomeIcon className="h-4 w-4" />
-                Home
+                <span> Home </span>
               </Link>
             </div>
           </div>
           <div>
-            <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+            <h3 className=" text-sm font-medium text-gray-500 text-center">
               Account
             </h3>
             <div className="grid gap-1">
               <Link
-                href="#"
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                href="/profile"
+                className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
                 prefetch={false}
               >
                 <UserIcon className="h-4 w-4" />
-                Profile
+                <span> Profile </span>
               </Link>
               <Link
-                href="#"
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                href="/login"
+                className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
                 prefetch={false}
               >
-                <LogOutIcon className="h-4 w-4" />
-                Logout
+                <LogInIcon className="h-4 w-4" />
+                <span> LogIn </span>
               </Link>
             </div>
           </div>
@@ -105,27 +124,6 @@ function LogOutIcon({ className }: { className?: string }) {
   );
 }
 
-function MenuIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="4" x2="20" y1="12" y2="12" />
-      <line x1="4" x2="20" y1="6" y2="6" />
-      <line x1="4" x2="20" y1="18" y2="18" />
-    </svg>
-  );
-}
-
 function UserIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -163,6 +161,25 @@ function LogInIcon({ className }: { className?: string }) {
       <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
       <polyline points="10 17 15 12 10 7" />
       <line x1="15" x2="3" y1="12" y2="12" />
+    </svg>
+  );
+}
+
+function ArrowIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+      />
     </svg>
   );
 }

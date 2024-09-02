@@ -20,14 +20,17 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={
-          inter.className + " flex flex-col items-center minh-screen w-full"
+          inter.className +
+          " flex flex-col items-center min-h-screen w-full bg-white relative"
         }
       >
         <Providers>
-          <header>
+          <header className="relative">
             <Sidebar />
           </header>
-          <main className="flex minh-screen flex-col">{children}</main>
+          <main className="flex min-h-screen flex-col md:container items-center w-full py-10 px-16">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>
