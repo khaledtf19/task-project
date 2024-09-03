@@ -1,16 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "./ui/utils";
+import { useProfile } from "@/hooks";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const { data: profileData, error, isRefetching, isLoading } = useProfile();
+  useEffect(() => {
+    console.log(profileData, error);
+  }, [profileData, error]);
+
   return (
     <div className="fixed left-0 top-8 m-auto z-10 flex flex-col bg-white">
       {isOpen ? (
-        <OpenedSidebar close={() => setIsOpen(false)} />
+        <OpenedSidebar
+          close={() => setIsOpen(false)}
+          status={isRefetching || isLoading || error !== null}
+        />
       ) : (
         <div
           onClick={() => setIsOpen(!isOpen)}
@@ -26,7 +37,13 @@ export default function Sidebar() {
   );
 }
 
-function OpenedSidebar({ close }: { close: () => void }) {
+function OpenedSidebar({
+  close,
+  status,
+}: {
+  close: () => void;
+  status?: boolean;
+}) {
   return (
     <div
       className={`fixed left-3 my-auto drop-shadow-md z-10 flex flex-col border border-slate-200 rounded-xl bg-white w-fit h-[80vh] overflow-auto`}
@@ -47,7 +64,6 @@ function OpenedSidebar({ close }: { close: () => void }) {
               <Link
                 href="/"
                 className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
-                prefetch={false}
               >
                 <HomeIcon className="h-4 w-4" />
                 <span> Home </span>
@@ -59,27 +75,51 @@ function OpenedSidebar({ close }: { close: () => void }) {
               Account
             </h3>
             <div className="grid gap-1">
-              <Link
-                href="/profile"
-                className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
-                prefetch={false}
-              >
-                <UserIcon className="h-4 w-4" />
-                <span> Profile </span>
-              </Link>
-              <Link
-                href="/login"
-                className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
-                prefetch={false}
-              >
-                <LogInIcon className="h-4 w-4" />
-                <span> LogIn </span>
-              </Link>
+              {status ? <LoggedOutUser /> : <LoggedInUser />}
             </div>
           </div>
         </div>
       </nav>
     </div>
+  );
+}
+
+function LoggedInUser() {
+  const router = useRouter();
+  const query = useQueryClient();
+  return (
+    <>
+      <Link
+        href="/profile"
+        className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
+      >
+        <UserIcon className="h-4 w-4" />
+        <span> Profile </span>
+      </Link>
+      <div
+        className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
+        onClick={async () => {
+          localStorage.removeItem("token");
+          query.invalidateQueries({ queryKey: ["profile"] });
+          router.push("/login");
+        }}
+      >
+        <LogOutIcon className="h-4 w-4" />
+        <span> LogOut </span>
+      </div>
+    </>
+  );
+}
+
+function LoggedOutUser() {
+  return (
+    <Link
+      href="/login"
+      className="flex items-center justify-center  gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-500"
+    >
+      <LogInIcon className="h-4 w-4" />
+      <span> LogIn </span>
+    </Link>
   );
 }
 

@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
   // Check if the user is authenticated
 
   // If the user is not authenticated and trying to access a protected route, redirect to login
-  if (pathname !== "/login" && pathname !== "/profile") {
+  if (pathname !== "/login" && !pathname.startsWith("/profile")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

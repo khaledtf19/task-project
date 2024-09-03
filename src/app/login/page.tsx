@@ -11,18 +11,20 @@ import {
   FaildDialogContent,
   SucessDialogContent,
 } from "../_components/ui/Dialog";
+import { useRouter } from "next/navigation";
+import { cookies } from "next/headers";
 
 const formSchema = z.object({
-  email: z.string().min(1, { message: "Username is required" }),
+  email: z.string().email().min(1, { message: "Username is required" }),
   password: z.string().min(1, { message: "Password is required" }),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 export default function Page() {
+  const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const login = useLogin({
-    onSuccess: () => dialogRef.current?.showModal(),
     onSettled: () => dialogRef.current?.showModal(),
   });
 
@@ -63,7 +65,9 @@ export default function Page() {
             {...register("password")}
             error={errors.password?.message}
           />
-          <Button type="submit">Submit</Button>
+          <Button type="submit" loading={login.isPending}>
+            Submit
+          </Button>
         </form>
       </Card>
       <dialog
@@ -72,7 +76,12 @@ export default function Page() {
         className="rounded-lg"
       >
         {login.isSuccess ? (
-          <SucessDialogContent close={() => dialogRef.current?.close()} />
+          <SucessDialogContent
+            close={() => {
+              dialogRef.current?.close();
+              router.push("/profile");
+            }}
+          />
         ) : (
           <FaildDialogContent close={() => dialogRef.current?.close()} />
         )}
